@@ -1,16 +1,15 @@
-version: '3.7'
+version: '3.8'
 
 services:
-  app:
-    apache:
+  apache:
     image: httpd:2.4
     volumes:
       - ./src:/var/www/html
       - ./httpd/httpd.conf:/usr/local/apache2/conf/httpd.conf
     depends_on:
-      - phpfpm
+      - php
 
-  phpfpm:
+  php:
     build:
       ./php
     volumes:
