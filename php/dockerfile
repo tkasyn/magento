@@ -1,28 +1,55 @@
-FROM php:7.0-fpm
+FROM php:7.3-fpm
+
+COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 RUN apt-get update && apt-get install -y \
-        curl \
-        wget \
-        git \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libxslt-dev \
-        libicu-dev \
-        libmcrypt-dev \
-        libpng12-dev \
-        libxml2-dev \
+  gzip \
+  libbz2-dev \
+  libfreetype6-dev \
+  libicu-dev \
+  libjpeg62-turbo-dev \
+  libmcrypt-dev \
+  libpng-dev \
+  libsodium-dev \
+  libssh2-1-dev \
+  libxslt1-dev \
+  libzip-dev \
+  lsof \
+  default-mysql-client \
+  zip
 
-    && docker-php-ext-install -j$(nproc) iconv mcrypt mbstring mysqli pdo_mysql zip \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd
+RUN docker-php-ext-configure \
+  gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
 
-RUN docker-php-ext-configure intl
-RUN docker-php-ext-install intl
-RUN docker-php-ext-install xsl
-RUN docker-php-ext-install soap
+RUN docker-php-ext-install \
+  bcmath \
+  bz2 \
+  calendar \
+  exif \
+  gd \
+  gettext \
+  intl \
+  mbstring \
+  mysqli \
+  opcache \
+  pcntl \
+  pdo_mysql \
+  soap \
+  sockets \
+  sodium \
+  sysvmsg \
+  sysvsem \
+  sysvshm \
+  xsl \
+  zip
 
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
-ADD php.ini /usr/local/etc/php/conf.d/40-custom.ini
+RUN groupadd -g 1000 app \
+ && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
+RUN mkdir -p /var/www/html \
+   && chown -R app:app /var/www
 
-WORKDIR /var/www/magento2
+USER app:app
+VOLUME /var/www
+WORKDIR /var/www/html
