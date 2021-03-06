@@ -45,6 +45,8 @@ RUN docker-php-ext-install \
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
+RUN echo 'memory_limit = 3G' >> "$PHP_INI_DIR/php.ini"
+
 RUN groupadd -g 1000 app \
  && useradd -g 1000 -u 1000 -d /var/www -s /bin/bash app
 RUN mkdir -p /var/www/html \
